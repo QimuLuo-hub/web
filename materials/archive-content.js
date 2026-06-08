@@ -945,7 +945,7 @@ Object.assign(window.ARCHIVE.projects["2023ann"], {
         en:
           "After that, I started to pace myself. I also wrote down my concern that using neural networks without a solid programming foundation might create more problems. Dr. Ren Zhao suggested starting from the most basic Euler method, and I was lucky to discuss it with Yifei Xu.",
         zh:
-          "从那次之后，我开始整理 pace myself。当时也担心自己基础语法不熟练，直接用神经网络会导致很多问题，于是表达了 concern。忍老师推荐我从最基本的欧拉法开始，也很幸运能和 Yifei Xu 一起讨论。",
+          "从那次之后，我开始整理（pace myself）。当时也担心自己基础语法不熟练，直接用神经网络会导致很多问题，于是表达了 concern。忍老师推荐我从最基本的欧拉法开始，也很幸运能和 Yifei Xu 一起讨论。",
       },
       subject: "Week 4 Progress",
       meta:
@@ -1086,7 +1086,7 @@ Object.assign(window.ARCHIVE.projects["2024surf"], {
       note: {
         en:
           "Before SURF officially started, I had already begun practicing basic finite element code.",
-        zh: "忍老师建议我从最基本的FDM和FEM代码开练习，对传统方先一个大概的感知。",
+        zh: "忍老师建议我从最基本的FDM和FEM代码开练习，对传统方法先有一个大概的感知。",
       },
       subject: "FEM Code Practice",
       meta:
