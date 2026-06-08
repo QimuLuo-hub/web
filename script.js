@@ -1,5 +1,9 @@
 const archive = window.ARCHIVE;
 let currentLang = localStorage.getItem("archive-language") || "en";
+const ARCHIVE_PASSWORD_QUESTION = "？🍷💃， ⛰️⛰️？";
+const ARCHIVE_PASSWORD = "24";
+const ARCHIVE_UNLOCK_KEY = "qimu-archive-unlocked";
+const ARCHIVE_UNLOCK_DURATION = 30 * 60 * 1000;
 
 const UI_TEXT = {
   en: {
@@ -24,6 +28,16 @@ const UI_TEXT = {
     close: "Close",
     previousPage: "Previous page",
     nextPage: "Next page",
+    saveLetter: "Save letter",
+    saveLetterTitle: "Save This Letter",
+    saveLetterCopy: "Choose an archival format for the full parchment letter.",
+    saveAsImage: "Save as image",
+    saveAsPdf: "Save as PDF",
+    passwordTitle: "Private Archive",
+    passwordQuestion: "Question",
+    passwordPlaceholder: "Enter password",
+    passwordButton: "Enter",
+    passwordError: "The password is not quite right.",
     letterPage: "Letter page",
     baseMapTitle: "A Small Globe Of Base-To-Base Research",
     baseMapNote: "Drag the globe, then hover over a route to see the approximate distance and time difference.",
@@ -64,6 +78,16 @@ const UI_TEXT = {
     close: "关闭",
     previousPage: "上一页",
     nextPage: "下一页",
+    saveLetter: "保存信件",
+    saveLetterTitle: "保存这封信",
+    saveLetterCopy: "选择一种格式，保存完整的羊皮纸信件。",
+    saveAsImage: "保存为图片",
+    saveAsPdf: "保存为 PDF",
+    passwordTitle: "Private Archive",
+    passwordQuestion: "问题",
+    passwordPlaceholder: "输入密码",
+    passwordButton: "进入",
+    passwordError: "密码好像不对。",
     letterPage: "信件页",
     baseMapTitle: "Base-to-Base",
     baseMapNote: "地球可以拖动",
@@ -118,6 +142,11 @@ function hrefWithFrom(path) {
   const source = typeof window !== "undefined" && window.location?.href ? encodeURIComponent(window.location.href) : "";
   if (!source) return base;
   return `${base}${base.includes("?") ? "&" : "?"}from=${source}`;
+}
+
+function isArchiveUnlocked() {
+  const unlockedAt = Number(localStorage.getItem(ARCHIVE_UNLOCK_KEY) || 0);
+  return Date.now() - unlockedAt < ARCHIVE_UNLOCK_DURATION;
 }
 
 function sectionById(id) {
@@ -1191,6 +1220,7 @@ function renderLetterBook(person, letter) {
       <div class="letter-controls">
         <button type="button" data-letter-prev>${html(ui("previousPage"))}</button>
         <span data-letter-count>1 / ${letter.length}</span>
+        <button type="button" data-letter-save hidden>${html(ui("saveLetter"))}</button>
         <button type="button" data-letter-next>${html(ui("nextPage"))} 📜</button>
       </div>
     </article>
@@ -1307,6 +1337,11 @@ function updateGraphLines(graph, nodes, lines) {
 function boot() {
   const mode = document.body.dataset.page;
   document.documentElement.lang = currentLang === "zh" ? "zh-CN" : "en";
+  if (mode === "home" && !isArchiveUnlocked()) {
+    renderPasswordGate();
+    initPasswordGate();
+    return;
+  }
   if (mode === "home") renderHome();
   if (mode === "section") renderSectionPage();
   if (mode === "project") renderProjectPage();
@@ -1317,6 +1352,42 @@ function boot() {
   initImageLightbox();
   initLetterBook();
   initBaseGlobe();
+}
+
+function renderPasswordGate() {
+  document.title = `${archive.title} | Private`;
+  document.body.innerHTML = `
+    <main class="password-gate">
+      <section class="password-panel">
+        <p class="section-label">${html(ui("passwordTitle"))}</p>
+        <h1>${html(archive.title || "Archive")}</h1>
+        <form class="password-form" data-password-form>
+          <label for="archive-password">${html(ui("passwordQuestion"))}</label>
+          <p class="password-question">${html(ARCHIVE_PASSWORD_QUESTION)}</p>
+          <input id="archive-password" name="password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="${html(ui("passwordPlaceholder"))}" autofocus>
+          <p class="password-error" data-password-error hidden>${html(ui("passwordError"))}</p>
+          <button type="submit">${html(ui("passwordButton"))}</button>
+        </form>
+      </section>
+    </main>
+  `;
+}
+
+function initPasswordGate() {
+  const form = document.querySelector("[data-password-form]");
+  const input = form?.querySelector("input");
+  const error = form?.querySelector("[data-password-error]");
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (input?.value.trim() === ARCHIVE_PASSWORD) {
+      localStorage.setItem(ARCHIVE_UNLOCK_KEY, String(Date.now()));
+      boot();
+      return;
+    }
+    if (error) error.hidden = false;
+    input?.focus();
+    input?.select();
+  });
 }
 
 function initLanguageToggle() {
@@ -1357,16 +1428,263 @@ function initLetterBook() {
     const count = book.querySelector("[data-letter-count]");
     const prev = book.querySelector("[data-letter-prev]");
     const next = book.querySelector("[data-letter-next]");
+    const save = book.querySelector("[data-letter-save]");
     let index = 0;
+    const updateSaveButton = () => {
+      if (save) save.hidden = index !== pages.length - 1;
+    };
     const setPage = (nextIndex) => {
       index = (nextIndex + pages.length) % pages.length;
       pages.forEach((page, pageIndex) => page.classList.toggle("is-active", pageIndex === index));
       if (count) count.textContent = `${index + 1} / ${pages.length}`;
+      updateSaveButton();
       playPageFlipSound();
     };
+    updateSaveButton();
     prev?.addEventListener("click", () => setPage(index - 1));
     next?.addEventListener("click", () => setPage(index + 1));
+    save?.addEventListener("click", () => openLetterSaveModal(book));
   });
+}
+
+function openLetterSaveModal(book) {
+  const overlay = document.createElement("div");
+  overlay.className = "letter-save-modal";
+  overlay.innerHTML = `
+    <section class="letter-save-panel" role="dialog" aria-modal="true" aria-label="${html(ui("saveLetterTitle"))}">
+      <button class="modal-close letter-save-close" type="button">${html(ui("close"))}</button>
+      <p class="section-label">${html(ui("saveLetter"))}</p>
+      <h2>${html(ui("saveLetterTitle"))}</h2>
+      <p>${html(ui("saveLetterCopy"))}</p>
+      <div class="letter-save-actions">
+        <button type="button" data-save-image>${html(ui("saveAsImage"))}</button>
+        <button type="button" data-save-pdf>${html(ui("saveAsPdf"))}</button>
+      </div>
+    </section>
+  `;
+  const close = () => overlay.remove();
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) close();
+  });
+  overlay.querySelector(".letter-save-close")?.addEventListener("click", close);
+  overlay.querySelector("[data-save-image]")?.addEventListener("click", () => {
+    downloadLetterImage(book);
+    close();
+  });
+  overlay.querySelector("[data-save-pdf]")?.addEventListener("click", () => {
+    openLetterPdfWindow(book);
+    close();
+  });
+  document.body.append(overlay);
+}
+
+function letterExportData(book) {
+  const pages = [...book.querySelectorAll("[data-letter-page]")];
+  const firstPage = pages[0];
+  const rawParagraphs = pages
+    .map((page) => {
+      const paragraphs = [...page.querySelectorAll("p:not(.section-label)")];
+      return paragraphs.map((paragraph) => paragraph.textContent.trim()).filter(Boolean).join("\n\n");
+    })
+    .filter(Boolean);
+  return {
+    role: firstPage?.querySelector(".section-label")?.textContent.trim() || "",
+    title: firstPage?.querySelector("h2")?.textContent.trim() || archive.title,
+    paragraphs: compactLetterParagraphs(rawParagraphs),
+  };
+}
+
+function compactLetterParagraphs(paragraphs) {
+  const normalized = paragraphs
+    .join("\n\n")
+    .replace(/\s*\n\s*/g, "\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+  if (!normalized) return [];
+
+  const closingMatch = normalized.match(/为\s*PTF[\s\S]*$/);
+  const closing = closingMatch ? closingMatch[0].trim() : "";
+  const body = closing ? normalized.slice(0, closingMatch.index).trim() : normalized;
+  const sentences = body
+    .replace(/\n+/g, "")
+    .match(/[^。！？!?]+[。！？!?]?|[^。！？!?]+$/g)
+    ?.map((sentence) => sentence.trim())
+    .filter(Boolean) || [body];
+
+  const groupCount = Math.min(3, Math.max(2, Math.ceil(sentences.join("").length / 520)));
+  const targetLength = Math.ceil(sentences.join("").length / groupCount);
+  const groups = [];
+  let current = "";
+  sentences.forEach((sentence) => {
+    if (current && current.length + sentence.length > targetLength && groups.length < groupCount - 1) {
+      groups.push(current);
+      current = sentence;
+      return;
+    }
+    current += sentence;
+  });
+  if (current) groups.push(current);
+  if (closing) groups.push(closing.replace(/\n{2,}/g, "\n"));
+  return groups;
+}
+
+function canvasTokens(textValue) {
+  const tokens = [];
+  const matcher = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]|[^\s\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF]+|\s+/g;
+  const matches = String(textValue || "").match(matcher) || [];
+  matches.forEach((token) => {
+    if (/^\s+$/.test(token)) {
+      tokens.push(" ");
+    } else {
+      tokens.push(token);
+    }
+  });
+  return tokens;
+}
+
+function wrappedCanvasLines(context, textValue, maxWidth) {
+  const lines = [];
+  const paragraphs = String(textValue || "").split(/\n/);
+  paragraphs.forEach((paragraph) => {
+    const tokens = canvasTokens(paragraph).flatMap((token) => {
+      if (token === " " || context.measureText(token).width <= maxWidth) return [token];
+      return Array.from(token);
+    });
+    if (!tokens.length) {
+      lines.push("");
+      return;
+    }
+    let line = "";
+    tokens.forEach((token) => {
+      const nextToken = line || token !== " " ? token : "";
+      const testLine = `${line}${nextToken}`;
+      if (context.measureText(testLine).width > maxWidth && line.trim()) {
+        lines.push(line);
+        line = token === " " ? "" : token;
+      } else {
+        line = testLine;
+      }
+    });
+    if (line.trim()) lines.push(line);
+  });
+  return lines;
+}
+
+function createLetterCanvas(book) {
+  const data = letterExportData(book);
+  const width = 1600;
+  const paddingX = 150;
+  const topPadding = 150;
+  const bottomPadding = 170;
+  const measureCanvas = document.createElement("canvas");
+  const measureContext = measureCanvas.getContext("2d");
+  measureContext.font = "34px 'Times New Roman', Times, serif";
+  const bodyBlocks = data.paragraphs.map((paragraph) => wrappedCanvasLines(measureContext, paragraph, width - paddingX * 2));
+  const bodyLineHeight = 54;
+  const bodyHeight = bodyBlocks.reduce((total, lines, index) => total + lines.length * bodyLineHeight + (index === bodyBlocks.length - 1 ? 12 : 48), 0);
+  const height = Math.max(2200, topPadding + 210 + bodyHeight + bottomPadding);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+
+  const base = context.createLinearGradient(0, 0, width, height);
+  base.addColorStop(0, "#f8e2b7");
+  base.addColorStop(0.45, "#ead09d");
+  base.addColorStop(1, "#d5af73");
+  context.fillStyle = base;
+  context.fillRect(0, 0, width, height);
+
+  context.globalAlpha = 0.35;
+  for (let i = 0; i < 1200; i += 1) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const radius = Math.random() * 2.2 + 0.4;
+    context.fillStyle = Math.random() > 0.5 ? "#fff1cf" : "#7c5930";
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.fill();
+  }
+  context.globalAlpha = 1;
+
+  const stain = context.createRadialGradient(width * 0.76, height * 0.18, 20, width * 0.76, height * 0.18, 520);
+  stain.addColorStop(0, "rgba(122, 83, 43, 0.16)");
+  stain.addColorStop(1, "rgba(122, 83, 43, 0)");
+  context.fillStyle = stain;
+  context.fillRect(0, 0, width, height);
+
+  context.strokeStyle = "rgba(83, 55, 28, 0.24)";
+  context.lineWidth = 5;
+  context.strokeRect(58, 58, width - 116, height - 116);
+  context.strokeStyle = "rgba(255, 246, 220, 0.36)";
+  context.lineWidth = 2;
+  context.strokeRect(78, 78, width - 156, height - 156);
+
+  context.fillStyle = "#6f5030";
+  context.font = "700 26px 'Times New Roman', Times, serif";
+  context.letterSpacing = "0px";
+  context.fillText(data.role.toUpperCase(), paddingX, topPadding);
+  context.fillStyle = "#2f2b25";
+  context.font = "700 70px 'Times New Roman', Times, serif";
+  context.fillText(data.title, paddingX, topPadding + 88);
+
+  context.fillStyle = "#473d30";
+  context.font = "34px 'Times New Roman', Times, serif";
+  let y = topPadding + 190;
+  bodyBlocks.forEach((lines, blockIndex) => {
+    lines.forEach((line) => {
+      context.fillText(line, paddingX, y);
+      y += bodyLineHeight;
+    });
+    y += blockIndex === bodyBlocks.length - 1 ? 12 : 48;
+  });
+
+  context.strokeStyle = "rgba(83, 55, 28, 0.36)";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(width - paddingX - 320, height - bottomPadding + 24);
+  context.lineTo(width - paddingX, height - bottomPadding + 24);
+  context.stroke();
+  context.fillStyle = "#6f5030";
+  context.font = "italic 30px 'Times New Roman', Times, serif";
+  context.fillText("Qimu", width - paddingX - 155, height - bottomPadding + 72);
+  return canvas;
+}
+
+function downloadLetterImage(book) {
+  const canvas = createLetterCanvas(book);
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = "letter-to-dr-ren-zhao.png";
+  link.click();
+}
+
+function openLetterPdfWindow(book) {
+  const dataUrl = createLetterCanvas(book).toDataURL("image/png");
+  const pdfWindow = window.open("", "_blank");
+  if (!pdfWindow) return;
+  pdfWindow.document.write(`
+    <!doctype html>
+    <html>
+      <head>
+        <title>Letter to Dr. Ren Zhao</title>
+        <style>
+          @page { margin: 0; }
+          body { margin: 0; background: #efe2c4; }
+          img { display: block; width: 100%; max-width: 100%; }
+          .toolbar { position: fixed; top: 16px; right: 16px; z-index: 2; }
+          button { font: 700 14px "Times New Roman", Times, serif; padding: 10px 14px; border: 1px solid rgba(30,48,53,.2); background: #fffaf0; cursor: pointer; }
+          @media print { .toolbar { display: none; } img { width: 100%; } }
+        </style>
+      </head>
+      <body>
+        <div class="toolbar"><button onclick="window.print()">${html(ui("saveAsPdf"))}</button></div>
+        <img src="${dataUrl}" alt="Letter to Dr. Ren Zhao">
+        <script>window.addEventListener("load", () => setTimeout(() => window.print(), 350));<\/script>
+      </body>
+    </html>
+  `);
+  pdfWindow.document.close();
 }
 
 function playPageFlipSound() {
