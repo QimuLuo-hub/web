@@ -33,6 +33,9 @@ const UI_TEXT = {
     saveLetterCopy: "Choose an archival format for the full parchment letter.",
     saveAsImage: "Save as image",
     saveAsPdf: "Save as PDF",
+    musicPlay: "Play music",
+    musicPause: "Pause music",
+    musicNow: "Now playing",
     passwordTitle: "Private Archive",
     passwordQuestion: "Question",
     passwordPlaceholder: "Enter password",
@@ -83,6 +86,9 @@ const UI_TEXT = {
     saveLetterCopy: "选择一种格式，保存完整的羊皮纸信件。",
     saveAsImage: "保存为图片",
     saveAsPdf: "保存为 PDF",
+    musicPlay: "播放音乐",
+    musicPause: "暂停音乐",
+    musicNow: "正在播放",
     passwordTitle: "Private Archive",
     passwordQuestion: "问题",
     passwordPlaceholder: "输入密码",
@@ -1172,6 +1178,7 @@ function renderCollaboratorPage() {
   target.innerHTML = `
     <section class="section-band">
       <div class="section-inner collaborator-page-grid ${person.id === "ren-zhao" ? "ren-letter-grid" : ""}">
+        ${person.id === "ren-zhao" ? renderLetterMusicControl() : ""}
         ${renderGraphPanel("page")}
         ${
           person.id === "ren-zhao"
@@ -1198,6 +1205,20 @@ function renderCollaboratorPage() {
         }
       </div>
     </section>
+  `;
+}
+
+function renderLetterMusicControl() {
+  const playlist = [
+    { title: "好久不见", src: href("music/好久不见.mp3") },
+    { title: "后来", src: href("music/后来2020.mp3") },
+  ];
+  return `
+    <aside class="letter-music" data-letter-music data-playlist='${html(JSON.stringify(playlist))}'>
+      <button type="button" data-music-toggle aria-pressed="false" aria-label="${html(ui("musicPlay"))}">
+        <span aria-hidden="true">🎵</span>
+      </button>
+    </aside>
   `;
 }
 
@@ -1351,6 +1372,7 @@ function boot() {
   initLanguageToggle();
   initImageLightbox();
   initLetterBook();
+  initLetterMusic();
   initBaseGlobe();
 }
 
@@ -1444,6 +1466,67 @@ function initLetterBook() {
     prev?.addEventListener("click", () => setPage(index - 1));
     next?.addEventListener("click", () => setPage(index + 1));
     save?.addEventListener("click", () => openLetterSaveModal(book));
+  });
+}
+
+function initLetterMusic() {
+  document.querySelectorAll("[data-letter-music]").forEach((panel) => {
+    if (panel.dataset.ready) return;
+    panel.dataset.ready = "true";
+    let playlist = [];
+    try {
+      playlist = JSON.parse(panel.dataset.playlist || "[]");
+    } catch {
+      playlist = [];
+    }
+    if (!playlist.length) return;
+
+    const button = panel.querySelector("[data-music-toggle]");
+    const audio = new Audio(playlist[0].src);
+    audio.preload = "metadata";
+    let trackIndex = 0;
+    let isPlaying = false;
+
+    const setTrack = (nextIndex) => {
+      trackIndex = (nextIndex + playlist.length) % playlist.length;
+      audio.src = playlist[trackIndex].src;
+    };
+
+    const updateUi = () => {
+      panel.classList.toggle("is-playing", isPlaying);
+      button?.setAttribute("aria-pressed", String(isPlaying));
+      button?.setAttribute("aria-label", ui(isPlaying ? "musicPause" : "musicPlay"));
+    };
+
+    button?.addEventListener("click", async () => {
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        updateUi();
+        return;
+      }
+      try {
+        await audio.play();
+        isPlaying = true;
+        updateUi();
+      } catch {
+        isPlaying = false;
+        updateUi();
+      }
+    });
+
+    audio.addEventListener("ended", async () => {
+      setTrack(trackIndex + 1);
+      try {
+        await audio.play();
+        isPlaying = true;
+      } catch {
+        isPlaying = false;
+      }
+      updateUi();
+    });
+
+    updateUi();
   });
 }
 
@@ -1691,19 +1774,44 @@ function playPageFlipSound() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const context = new AudioContext();
+    const duration = 0.42;
     const noise = context.createBufferSource();
-    const buffer = context.createBuffer(1, context.sampleRate * 0.18, context.sampleRate);
+    const buffer = context.createBuffer(1, context.sampleRate * duration, context.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < data.length; i += 1) {
-      data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) * 0.18;
+      const progress = i / data.length;
+      const softAttack = Math.min(progress / 0.16, 1);
+      const softDecay = Math.pow(1 - progress, 1.8);
+      const lowRustle = Math.sin(i * 0.035) * 0.045;
+      data[i] = ((Math.random() * 2 - 1) * 0.11 + lowRustle) * softAttack * softDecay;
     }
+    const filter = context.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(1150, context.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(620, context.currentTime + duration);
+    filter.Q.setValueAtTime(0.55, context.currentTime);
+
     const gain = context.createGain();
-    gain.gain.setValueAtTime(0.16, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.linearRampToValueAtTime(0.11, context.currentTime + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + duration);
+
+    const fold = context.createOscillator();
+    const foldGain = context.createGain();
+    fold.type = "triangle";
+    fold.frequency.setValueAtTime(92, context.currentTime);
+    fold.frequency.exponentialRampToValueAtTime(58, context.currentTime + 0.26);
+    foldGain.gain.setValueAtTime(0.0001, context.currentTime);
+    foldGain.gain.linearRampToValueAtTime(0.018, context.currentTime + 0.04);
+    foldGain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.3);
+
     noise.buffer = buffer;
-    noise.connect(gain).connect(context.destination);
+    noise.connect(filter).connect(gain).connect(context.destination);
+    fold.connect(foldGain).connect(context.destination);
     noise.start();
-    noise.stop(context.currentTime + 0.18);
+    fold.start();
+    noise.stop(context.currentTime + duration);
+    fold.stop(context.currentTime + 0.32);
   } catch {
     // Audio is optional and depends on browser permissions.
   }

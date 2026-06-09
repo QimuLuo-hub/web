@@ -1479,6 +1479,36 @@ h1 {
   align-items: start;
 }
 
+.letter-music {
+  position: fixed;
+  right: 24px;
+  top: 86px;
+  z-index: 18;
+  display: grid;
+  place-items: center;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 253, 248, 0.82);
+  box-shadow: 0 16px 42px rgba(30, 48, 53, 0.13);
+  backdrop-filter: blur(14px);
+}
+
+.letter-music button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(125, 60, 75, 0.2);
+  border-radius: 50%;
+  background: rgba(125, 60, 75, 0.1);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.letter-music.is-playing button {
+  background: var(--wine);
+  color: var(--white);
+}
+
 .ren-letter-grid {
   grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
 }
@@ -2059,6 +2089,12 @@ h1 {
 
   .collaborator-links {
     grid-column: auto;
+  }
+
+  .letter-music {
+    top: auto;
+    right: 16px;
+    bottom: 16px;
   }
 
   .collab-detail {
