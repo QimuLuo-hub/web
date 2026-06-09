@@ -691,7 +691,7 @@ window.ARCHIVE = {
           en:
             "These three years are written from my perspective, but from Dr. Ren Zhao’s perspective, he not only supervised the projects related to me, but also gave countless kinds of support to so many peers. He is truly a teacher who keeps inspiring others, and someone doing real education. We were treated as vivid, living people, not as student numbers. To meet such a noble person at a huge fork in life is something I will be grateful for throughout my life.",
           zh:
-            "这三年的故事，是从我视角撰写的，而忍老师不仅仅 supervise 了和我相关的项目，还给无数的同伴们提供了大大小小的 support，是当之无愧的总在 inspire 的老师，也是在做真的教育的人。我们是被认真对待的一个个鲜活的人，而不是一个个学号。能在人生的巨大的分叉路口遇到这样的贵人，是我一生都会感念的事。",
+            "这三年的故事，是从我视角撰写的，而忍老师不仅仅 supervise 了和我相关的项目，还给无数的同伴们提供了大大小小的 support，是当之无愧的总在 inspire 的老师，也是在做真的教育的人。我们是被认真对待的一个个鲜活的人，而不是一个个学号。能在人生的巨大的分岔路口遇到这样的贵人，是我一生都会感念的事。",
         },
         {
           en:
@@ -945,7 +945,7 @@ Object.assign(window.ARCHIVE.projects["2023ann"], {
         en:
           "After that, I started to pace myself. I also wrote down my concern that using neural networks without a solid programming foundation might create more problems. Dr. Ren Zhao suggested starting from the most basic Euler method, and I was lucky to discuss it with Yifei Xu.",
         zh:
-          "从那次之后，我开始整理（pace myself）。当时也担心自己基础语法不熟练，直接用神经网络会导致很多问题，于是表达了 concern。忍老师推荐我从最基本的欧拉法开始，也很幸运能和 Yifei Xu 一起讨论。",
+          "从那次之后，我开始整理 (pace myself)。当时也担心自己基础语法不熟练，直接用神经网络会导致很多问题，于是表达了 concern。忍老师推荐我从最基本的欧拉法开始，也很幸运能和 Yifei Xu 一起讨论。",
       },
       subject: "Week 4 Progress",
       meta:
@@ -1266,7 +1266,7 @@ Object.assign(window.ARCHIVE.projects["2025surf"], {
     zh: "第二个 SURF 是 2025 Citi 的延伸。",
   },
   headingLabel: "2025.6-8",
-  storyTitle: { en: "A Lucky Summer of Being Accompanied.", zh: "一个幸运的被陪伴着的夏天。" },
+  storyTitle: { en: "A Lucky Summer of Being Accompanied.", zh: "一个幸运的被陪伴着的夏天" },
   story: [
     {
       en:
@@ -1356,9 +1356,9 @@ Object.assign(window.ARCHIVE.projects["2025surf"], {
       date: "2025.08.05",
       note: {
         en:
-          "This became the first major event of the 2026 Moving Qimu Awards. I genuinely cannot find a second person in the world who would worry about me to this extent.",
+          "This became the first major event of the 2025 Moving Qimu Awards. I genuinely cannot find a second person in the world who would worry about me to this extent.",
         zh:
-          "此次获评“2026 感动积木第一大事件”。这个世界上找不出第二个人能做到这种程度🙌",
+          "此次获评“2025感动积木第一大事件”。这个世界上找不出第二个人能做到这种程度🙌",
       },
       messages: [
         { role: "Student", text: "妈妈，忍老师一晚上没睡" },
@@ -1954,8 +1954,8 @@ Object.assign(window.ARCHIVE.projects["2025eajam"], {
       type: "chat",
       date: "2025.04.02-04",
       note: {
-        en: "Base Italy. I was preparing the revision and submission; after submission, Dr. Ren Zhao asked whether espresso was bitter, so I quietly prepared illy coffee beans for him :).",
-        zh: "Base Italy，终于提价了第一版的paper。提交之后和老师💬，老师好奇 espresso 苦不苦，所以当时立马给老师准备了☕️豆😌",
+        en: "Base Italy. I was preparing the revision and submission; after submission, Dr. Ren Zhao was curious about the espresso, so I quietly prepared illy coffee beans for him :).",
+        zh: "Base Italy，终于提交了第一版的paper。提交之后和老师💬，老师好奇 espresso，所以当时立马给老师准备了☕️豆😌",
       },
       messages: [
         { role: "Supervisor", text: "在哪度假🏖️" },
@@ -2265,7 +2265,7 @@ Object.assign(window.ARCHIVE.projects["2025eajam"], {
       en:
         "This is a story of remembering something long enough that it finally answers back. I once wrote on 2024.08.15: one day I will arrive at all the places I want to go, meet the people I want to meet, at the right time, place, and season, because I deserve it, and I know and deeply believe this. That wish, and that deeper trust, turned countless hours, effort, discussions, adjustments, and polish into one citation:\nEnergy-Based Adaptive Deep Unfitted Nitsche Method for Elliptic Interface Problems. (2026). East Asian Journal on Applied Mathematics, 16(3), 573-599. https://doi.org/10.4208/eajam.2025-069.100925.\nThe girl who wrote those words before dawn in 2024 may have been closer to the future she believed in than she imagined.",
       zh:
-        "这是一个念念不忘，必有回响的故事。我曾经在 2024.8.15 写下：总有一天我会去到的，所有我想去的地方，我想见的人，在恰到好处的时间，地点，时节，因为我值得，我知道并深信这一点。这样的愿力，以及深层次的信任，让无数时间、精力、数不清的讨论、调整和打磨让 report，code 和 draft 变成了一行引用：\n“Energy-Based Adaptive Deep Unfitted Nitsche Method for Elliptic Interface Problems. (2026). East Asian Journal on Applied Mathematics, 16(3), 573-599. https://doi.org/10.4208/eajam.2025-069.100925”。\n原来 2024 凌晨写下这些话的女孩，可能比自己想象的还要接近她当时相信的未来。",
+        "这是一个念念不忘，必有回响的故事。我曾经在 2024.8.15 写下：总有一天我会去到的，所有我想去的地方，我想见的人，在恰到好处的时间，地点，时节，因为我值得，我知道并深信这一点。这样的愿力，深层次的信任，以及无数时间、精力、数不清的讨论、调整和打磨让 report，code 和 draft 变成了一行引用：\n“Energy-Based Adaptive Deep Unfitted Nitsche Method for Elliptic Interface Problems. (2026). East Asian Journal on Applied Mathematics, 16(3), 573-599. https://doi.org/10.4208/eajam.2025-069.100925”。\n原来 2024 凌晨写下这些话的女孩，可能比自己想象的还要接近她当时相信的未来。",
     },
   ],
 });
