@@ -1063,7 +1063,7 @@ Object.assign(window.ARCHIVE.projects["2023ann"], {
 Object.assign(window.ARCHIVE.projects["2024surf"], {
   subtitle: "",
   headingLabel: "",
-  cardTitle: "Deep Learning Method for Plasma Simulation.",
+  cardTitle: "Deep Learning Method for Plasma Simulation",
   timeline: {
     en:
       "This is the preface to the story of my first paper: a long period of being alone with code, and a process that trained my patience more than almost anything else.",
