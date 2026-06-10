@@ -2307,6 +2307,7 @@ Object.assign(window.ARCHIVE.collaborators["hailong-guo"], {
         "Dr. Hailong Guo 是这个 archive 里另一位温暖又可靠的老师。2024 SURF 里，他非常细节的代码建议让很多抽象的问题变得具体；后来，他持续的 support 也成为申请季里很珍贵的一部分。",
     },
   ],
+  links: ["2024surf", "2025eajam", "2026spectral"],
 });
 
 Object.assign(window.ARCHIVE.collaborators["jiayi-lin"], {
