@@ -103,7 +103,7 @@ const UI_TEXT = {
       "在我还没有成为今天的我之前，他就看见了昨天的我；\n在我还没有成为未来的我之前，他就看见了今天的我。",
     prefaceTitle: "A Preface",
     prefaceOne:
-      "因为你 所以我 所以我 不退缩。",
+      "因为你 所以我 所以我 不退缩",
     prefaceSong: "因为你 所以我",
     archiveRooms: "The Archive Rooms",
     stillBecoming: "仍在生长",
